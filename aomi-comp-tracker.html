@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AOMI Comp Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --forest:#1F4D2B; --forest-deep:#16381F; --terra:#9C4A2F; --cream:#F5F1E8; --cream-deep:#ECE6D8;
+  --sage:#E4ECE4; --ink:#21261F; --mute:#6E726E; --rule:#D8D2C4; --card:#FFFDF8;
+  --serif:'Fraunces',Georgia,serif; --sans:'Inter',-apple-system,sans-serif; --mono:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:var(--cream);color:var(--ink);font-size:14px;line-height:1.5}
+button{font-family:var(--sans);cursor:pointer}
+input,select,textarea{font-family:var(--sans);font-size:13px}
+:focus-visible{outline:3px solid var(--terra);outline-offset:1px}
+
+/* header */
+header{background:var(--forest);color:var(--cream);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+header h1{font-family:var(--serif);font-weight:600;font-size:22px;letter-spacing:.02em}
+header h1 small{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.22em;color:#C9D2C4;font-weight:500;margin-top:2px}
+.hdr-actions{display:flex;gap:10px;align-items:center}
+.btn{border:1px solid transparent;border-radius:4px;padding:8px 14px;font-weight:600;font-size:13px}
+.btn-primary{background:var(--terra);color:#fff}
+.btn-primary:hover{background:#8A3F27}
+.btn-ghost{background:transparent;color:var(--cream);border-color:rgba(245,241,232,.4)}
+.btn-ghost:hover{background:rgba(245,241,232,.12)}
+.btn-quiet{background:transparent;color:var(--mute);border-color:var(--rule)}
+.btn-quiet:hover{color:var(--terra);border-color:var(--terra)}
+.btn-danger{background:transparent;color:#A33B2A;border-color:#D9B0A6}
+.btn-danger:hover{background:#F6E7E2}
+
+/* toolbar */
+.toolbar{position:sticky;top:0;z-index:30;background:rgba(245,241,232,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--rule);padding:12px 24px;display:flex;flex-direction:column;gap:10px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.search{flex:1;min-width:200px;max-width:340px;padding:8px 12px;border:1px solid var(--rule);border-radius:4px;background:#fff}
+select.ctl{padding:8px 10px;border:1px solid var(--rule);border-radius:4px;background:#fff}
+.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chips .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);margin-right:2px}
+.chip{border:1px solid var(--rule);background:#fff;border-radius:999px;padding:5px 12px;font-size:12px;font-weight:500;color:var(--ink)}
+.chip:hover{border-color:var(--forest)}
+.chip.on{background:var(--forest);border-color:var(--forest);color:#fff}
+.statline{font-family:var(--mono);font-size:11px;color:var(--mute);letter-spacing:.04em}
+.statline b{color:var(--terra)}
+
+/* grid */
+main{padding:20px 24px 60px;max-width:1480px;margin:0 auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:18px 18px 14px;display:flex;flex-direction:column;gap:10px;position:relative;transition:box-shadow .15s,border-color .15s}
+.card:hover{border-color:#B9C4B9;box-shadow:0 3px 14px rgba(31,77,43,.08)}
+.card.deck{background:#FBF3ED;border-color:#E2C9BB}
+.badge{position:absolute;top:14px;right:14px;font-family:var(--mono);font-size:9px;letter-spacing:.14em;background:var(--terra);color:#fff;border-radius:3px;padding:3px 7px;font-weight:600}
+.card h3{font-family:var(--serif);font-weight:600;font-size:19px;color:var(--forest);line-height:1.15;padding-right:64px}
+.card .loc{font-size:12px;color:var(--mute);margin-top:-6px}
+.facts{display:flex;gap:14px;flex-wrap:wrap;font-size:12px}
+.facts div{display:flex;flex-direction:column}
+.facts .k{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.facts .v{font-weight:600}
+.facts .v.adr{color:var(--terra)}
+.dots{display:flex;gap:4px;align-items:center}
+.facts div.dots{flex-direction:row}
+.dots i{width:9px;height:9px;border-radius:50%;background:var(--forest)}
+.dots i.off{background:transparent;border:1.5px solid var(--forest)}
+.tags{display:flex;gap:5px;flex-wrap:wrap}
+.tag{font-size:10.5px;font-weight:500;background:var(--sage);color:var(--forest-deep);border-radius:3px;padding:3px 7px}
+.card .notes{font-size:12px;color:var(--mute);line-height:1.5;border-top:1px dashed var(--rule);padding-top:8px}
+.card .actions{display:flex;gap:8px;margin-top:auto;padding-top:6px}
+.card .actions .btn{padding:5px 10px;font-size:12px}
+.empty{text-align:center;color:var(--mute);padding:80px 20px;font-size:15px}
+.empty b{display:block;font-family:var(--serif);font-size:22px;color:var(--forest);margin-bottom:8px}
+
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(33,38,31,.5);display:none;align-items:flex-start;justify-content:center;z-index:60;padding:40px 16px;overflow:auto}
+.overlay.open{display:flex}
+.modal{background:var(--card);border-radius:8px;width:100%;max-width:640px;padding:26px 28px;border-top:5px solid var(--terra)}
+.modal h2{font-family:var(--serif);font-weight:600;font-size:22px;color:var(--forest);margin-bottom:16px}
+.f-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.f-grid .full{grid-column:1/-1}
+.field label{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:4px}
+.field input,.field select,.field textarea{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:4px;background:#fff}
+.field textarea{resize:vertical;min-height:60px}
+.amen-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;margin-top:4px}
+.amen-grid label{display:flex;gap:7px;align-items:center;font-size:12.5px;font-weight:500;text-transform:none;letter-spacing:0;font-family:var(--sans);color:var(--ink);border:1px solid var(--rule);border-radius:4px;padding:7px 9px;background:#fff;cursor:pointer;margin:0}
+.amen-grid label:has(input:checked){background:var(--sage);border-color:var(--forest)}
+.modal .m-actions{display:flex;justify-content:space-between;gap:10px;margin-top:20px}
+.modal .m-actions .right{display:flex;gap:10px}
+.btn-forest{background:var(--forest);color:#fff}
+.btn-forest:hover{background:var(--forest-deep)}
+.simpick{display:flex;gap:6px}
+.simpick button{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--forest);background:transparent;font-weight:700;color:var(--forest)}
+.simpick button.on{background:var(--forest);color:#fff}
+.savebar{font-family:var(--mono);font-size:10px;color:var(--mute);letter-spacing:.08em}
+@media(max-width:640px){.f-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>AOMI Comp Tracker<small>LIVE COMPETITIVE SET · INTERNAL</small></h1>
+  <div class="hdr-actions">
+    <span class="savebar" id="saveState">loading…</span>
+    <button class="btn btn-ghost" id="resetBtn" title="Restore the original 20-property set">Reset to original 20</button>
+    <button class="btn btn-primary" id="addBtn">+ Add property</button>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="row">
+    <input class="search" id="q" type="search" placeholder="Search name, location, units, notes…" aria-label="Search properties">
+    <select class="ctl" id="regionSel" aria-label="Filter by region">
+      <option value="">All regions</option>
+      <option>Midwest</option><option>Northeast</option><option>Texas</option>
+      <option>Southeast</option><option>Mountain West</option><option>National</option>
+    </select>
+    <select class="ctl" id="simSel" aria-label="Filter by similarity">
+      <option value="">Any similarity</option>
+      <option value="5">5 only</option><option value="4">4+</option><option value="3">3+</option>
+    </select>
+    <select class="ctl" id="sortSel" aria-label="Sort">
+      <option value="sim">Sort: similarity</option>
+      <option value="adrHigh">Sort: ADR high→low</option>
+      <option value="adrLow">Sort: ADR low→high</option>
+      <option value="name">Sort: name A–Z</option>
+    </select>
+    <button class="btn btn-quiet" id="deckOnly">Deck comps only</button>
+  </div>
+  <div class="row">
+    <div class="chips" id="amenChips"><span class="lbl">Operates ▸</span></div>
+  </div>
+  <div class="statline" id="stats"></div>
+</div>
+
+<main>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" style="display:none"><b>No properties match</b>Try clearing a filter or two.</div>
+</main>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true">
+  <div class="modal">
+    <h2 id="modalTitle">Add property</h2>
+    <div class="f-grid">
+      <div class="field full"><label>Property name</label><input id="f_name"></div>
+      <div class="field"><label>Location</label><input id="f_loc" placeholder="Town, State"></div>
+      <div class="field"><label>Region</label>
+        <select id="f_region"><option>Midwest</option><option>Northeast</option><option>Texas</option><option>Southeast</option><option>Mountain West</option><option>National</option></select>
+      </div>
+      <div class="field"><label>Keys</label><input id="f_keys" placeholder="e.g. 17"></div>
+      <div class="field"><label>Unit types</label><input id="f_units" placeholder="e.g. Glass cabins"></div>
+      <div class="field"><label>ADR low ($)</label><input id="f_adrLo" type="number" min="0" step="10"></div>
+      <div class="field"><label>ADR high ($)</label><input id="f_adrHi" type="number" min="0" step="10"></div>
+      <div class="field"><label>Similarity to AOMI</label><div class="simpick" id="simPick"></div></div>
+      <div class="field"><label>Deck comp?</label>
+        <select id="f_deck"><option value="no">No</option><option value="yes">Yes — named in investor deck</option></select>
+      </div>
+      <div class="field full"><label>Amenities operated</label><div class="amen-grid" id="amenPick"></div></div>
+      <div class="field full"><label>Notes / why it matters</label><textarea id="f_notes"></textarea></div>
+    </div>
+    <div class="m-actions">
+      <button class="btn btn-danger" id="deleteBtn" style="display:none">Delete property</button>
+      <div class="right">
+        <button class="btn btn-quiet" id="cancelBtn">Cancel</button>
+        <button class="btn btn-forest" id="saveBtn">Save property</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+const AMENITIES=["Pool","Sauna","Cold/Hot Plunge","Hot Tub (shared)","Per-Unit Hot Tub","Spa Treatments","Restaurant / F&B","Bar / Tasting","Weddings & Events","Trails","Water Recreation","Bike Fleet","Outdoor Cinema","Yoga / Wellness Programming"];
+const STORE_KEY="aomi-comp-tracker-v1";
+
+const SEED=[
+ {id:"bolt",name:"Bolt Farm Treehouse",loc:"Whitwell, TN",region:"Southeast",keys:"20+",units:"Treehouses, mirror cabins, domes",adrLo:900,adrHi:1400,sim:5,deck:true,amen:["Pool","Sauna","Cold/Hot Plunge","Hot Tub (shared)","Per-Unit Hot Tub","Spa Treatments","Restaurant / F&B","Weddings & Events","Trails","Outdoor Cinema","Yoga / Wellness Programming"],notes:"The premium ceiling. Forbes-noted Wellness Haven spa; $1,174 deck ADR at ~95% occupancy. The amenity playbook AOMI is emulating."},
+ {id:"onera",name:"Onera (Fredericksburg + Wimberley)",loc:"Texas Hill Country, TX",region:"Texas",keys:"12 + 28",units:"Treehouses, A-frames, greenhouses",adrLo:600,adrHi:900,sim:5,deck:true,amen:["Pool","Sauna","Cold/Hot Plunge","Hot Tub (shared)","Per-Unit Hot Tub","Spa Treatments","Weddings & Events","Trails"],notes:"The scaling proof: ran the playbook twice (12→40 keys). 8BR lodge sleeping 16 anchors buyouts — validates the Grand Lodge."},
+ {id:"liveoak",name:"Live Oak Lake",loc:"Waco, TX",region:"Texas",keys:"7",units:"Modern lakefront cabins",adrLo:350,adrHi:500,sim:5,deck:true,amen:["Pool","Per-Unit Hot Tub","Water Recreation"],notes:"The exit multiple: ~$2.5M build sold ~$7M in two years. Content-driven demand; per-cabin tubs and fire pits; lakeside swing photo feature."},
+ {id:"eastwind",name:"Eastwind Hotels",loc:"Windham / Oliverea / Lake Placid, NY",region:"Northeast",keys:"4 properties",units:"Lushna cabins + lodge rooms",adrLo:250,adrHi:500,sim:4,deck:true,amen:["Pool","Sauna","Hot Tub (shared)","Restaurant / F&B","Bar / Tasting","Weddings & Events","Trails","Bike Fleet","Yoga / Wellness Programming"],notes:"The multi-site brand path. Banya sauna as branded ritual; hammocks, outdoor showers, bikes — the quick-wins source."},
+ {id:"piaule",name:"Piaule Catskill",loc:"Catskill, NY",region:"Northeast",keys:"24",units:"Glass landscape cabins",adrLo:400,adrHi:650,sim:5,deck:false,amen:["Pool","Sauna","Cold/Hot Plunge","Hot Tub (shared)","Spa Treatments","Restaurant / F&B","Weddings & Events","Trails","Yoga / Wellness Programming"],notes:"Closest design analog: 24 glass cabins on 50 acres (5 developed) + destination spa included in the stay, treatments billed. T+L It List."},
+ {id:"inness",name:"Inness",loc:"Accord, NY",region:"Northeast",keys:"40",units:"Cabins + farmhouse rooms",adrLo:400,adrHi:700,sim:4,deck:false,amen:["Pool","Sauna","Spa Treatments","Restaurant / F&B","Bar / Tasting","Weddings & Events","Trails","Yoga / Wellness Programming"],notes:"The full model at AOMI's target scale: rooms + F&B + spa + events + members club + 9-hole golf on a farm estate."},
+ {id:"gather",name:"Gather Greene",loc:"Coxsackie, NY",region:"Northeast",keys:"17",units:"Design cabins",adrLo:300,adrHi:450,sim:5,deck:false,amen:["Restaurant / F&B","Weddings & Events","Trails","Yoga / Wellness Programming"],notes:"AOMI's revenue model inverted: venue-first, 17 cabins as wedding lodging. Proof the buyout-weekend calendar carries a rural property."},
+ {id:"wildflower",name:"Wildflower Farms (Auberge)",loc:"Gardiner, NY",region:"Northeast",keys:"65",units:"Luxury cabins & suites",adrLo:800,adrHi:1500,sim:3,deck:false,amen:["Pool","Sauna","Cold/Hot Plunge","Hot Tub (shared)","Spa Treatments","Restaurant / F&B","Weddings & Events","Trails","Yoga / Wellness Programming"],notes:"The institutional ceiling — Auberge-managed cabin resort with destination spa and farm. Where the category goes at full scale."},
+ {id:"autocamp",name:"AutoCamp (platform)",loc:"CA / NY / MA / UT / TX",region:"National",keys:"~80–100 / site",units:"Airstreams + cabins + tents",adrLo:250,adrHi:500,sim:3,deck:false,amen:["Pool","Hot Tub (shared)","Restaurant / F&B","Bar / Tasting","Trails","Water Recreation","Bike Fleet","Yoga / Wellness Programming"],notes:"Branded clubhouse-centric platform; institutional capital. Proof design + shared social space scales across markets."},
+ {id:"ulum",name:"ULUM Moab",loc:"Moab, UT",region:"Mountain West",keys:"50",units:"Suite tents",adrLo:400,adrHi:700,sim:3,deck:false,amen:["Pool","Cold/Hot Plunge","Hot Tub (shared)","Spa Treatments","Restaurant / F&B","Trails","Yoga / Wellness Programming"],notes:"Under Canvas's upscale concept: 3-temperature dipping pools and wellness programming. Validates contrast bathing as anchor amenity."},
+ {id:"ofland",name:"OFLAND Escalante (fka Yonder)",loc:"Escalante, UT",region:"Mountain West",keys:"42 + RV",units:"A-frame cabins + airstreams",adrLo:230,adrHi:400,sim:4,deck:false,amen:["Pool","Sauna","Hot Tub (shared)","Restaurant / F&B","Trails","Outdoor Cinema"],notes:"Amenity-as-identity: the drive-in cinema is its signature. Pool, hot tub, sauna, bathhouses, general store."},
+ {id:"undercanvas",name:"Under Canvas (platform)",loc:"13+ camps, national",region:"National",keys:"~50–100 / site",units:"Safari tents",adrLo:300,adrHi:600,sim:2,deck:false,amen:["Restaurant / F&B","Trails","Yoga / Wellness Programming"],notes:"Glamping scale benchmark; seasonal, light on built amenities — shows where AOMI's year-round hard amenities are the edge."},
+ {id:"postcard",name:"Postcard Cabins (fka Getaway)",loc:"29 outposts, national",region:"National",keys:"~40–80 / site",units:"Minimal cabins",adrLo:150,adrHi:300,sim:2,deck:false,amen:["Trails"],notes:"The minimal-amenity counter-model: fire pit only. Proves amenities, not cabins, earn the premium."},
+ {id:"wandawega",name:"Camp Wandawega",loc:"Elkhorn, WI",region:"Midwest",keys:"~15",units:"Vintage cabins, treehouse, tents",adrLo:300,adrHi:600,sim:4,deck:false,amen:["Sauna","Weddings & Events","Trails","Water Recreation","Bike Fleet","Yoga / Wellness Programming"],notes:"Midwest brand icon 90 min from Chicago: lake, boathouse, archery, weddings. Proof of Chicago drive-to demand for design lodging."},
+ {id:"anaway",name:"Anaway Place (fka Candlewood Cabins)",loc:"Richland Center, WI",region:"Midwest",keys:"~6",units:"Glass / meadow cabins",adrLo:200,adrHi:350,sim:5,deck:false,amen:["Trails"],notes:"The Driftless incumbent since 1995 — validates the market AND the cautionary tale: cabins without amenities cap in the $200s–300s."},
+ {id:"cuyuna",name:"Cuyuna Cove",loc:"Crosby, MN",region:"Midwest",keys:"10",units:"Stilted cabins + bungalows",adrLo:200,adrHi:300,sim:4,deck:false,amen:["Sauna","Trails","Water Recreation","Bike Fleet"],notes:"The lean Midwest playbook: shared redwood sauna included, bike-in/bike-out to Cuyuna trails. Borrow amenities you don't build."},
+ {id:"fields",name:"The Fields of Michigan",loc:"South Haven, MI",region:"Midwest",keys:"~20",units:"Glamping tents (seasonal)",adrLo:250,adrHi:400,sim:3,deck:false,amen:["Restaurant / F&B","Bar / Tasting","Weddings & Events","Trails","Yoga / Wellness Programming"],notes:"Agritourism on a blueberry farm serving Chicago/Detroit. Validates Midwest seasonal agritourism the vineyard targets."},
+ {id:"treehousegrove",name:"Treehouse Grove at Norton Creek",loc:"Gatlinburg, TN",region:"Southeast",keys:"14",units:"Designer treehouses",adrLo:300,adrHi:500,sim:4,deck:false,amen:["Per-Unit Hot Tub","Trails"],notes:"14-unit designer treehouse micro-resort in a major market. Validates the planned treehouse format's economics."},
+ {id:"glampcollective",name:"The Glamping Collective",loc:"Clyde, NC",region:"Southeast",keys:"8",units:"Ultra-luxe domes + cabins",adrLo:400,adrHi:700,sim:4,deck:false,amen:["Per-Unit Hot Tub","Trails"],notes:"8-key mountaintop dome resort with private hot tubs and summit trails. Small-key, high-ADR, view-led — Phase 1's scale."},
+ {id:"clearsky",name:"Clear Sky Resorts",loc:"Grand Canyon / Bryce, AZ–UT",region:"Mountain West",keys:"~45 / site",units:"Luxury sky domes",adrLo:400,adrHi:800,sim:3,deck:false,amen:["Restaurant / F&B","Trails","Yoga / Wellness Programming"],notes:"Domes at scale with F&B and stargazing programming. Validates dome demand and dark-sky experiences AOMI plans."},
+];
+
+let comps=[]; let editingId=null; let simVal=3;
+let state={q:"",region:"",sim:"",sort:"sim",deckOnly:false,amen:new Set()};
+const $=id=>document.getElementById(id);
+
+/* ---------- storage ---------- */
+async function load(){
+  try{
+    const r=await window.storage.get(STORE_KEY);
+    if(r&&r.value){comps=JSON.parse(r.value); setSave("saved set loaded"); return;}
+  }catch(e){/* key absent or storage unavailable */}
+  comps=JSON.parse(JSON.stringify(SEED));
+  setSave("original 20 loaded");
+  persist(false);
+}
+async function persist(announce){
+  try{
+    await window.storage.set(STORE_KEY,JSON.stringify(comps));
+    if(announce!==false) setSave("saved ✓");
+  }catch(e){ setSave("⚠ not saved (storage unavailable)"); }
+}
+function setSave(t){ $("saveState").textContent=t; }
+
+/* ---------- render ---------- */
+function adrText(c){ return (c.adrLo||c.adrHi) ? ("$"+(c.adrLo||"?")+"–"+(c.adrHi||"?")) : "—"; }
+function filtered(){
+  let list=comps.filter(c=>{
+    if(state.deckOnly&&!c.deck)return false;
+    if(state.region&&c.region!==state.region)return false;
+    if(state.sim&&c.sim<+state.sim)return false;
+    for(const a of state.amen) if(!c.amen.includes(a)) return false;
+    if(state.q){
+      const h=(c.name+" "+c.loc+" "+c.units+" "+(c.notes||"")).toLowerCase();
+      if(!h.includes(state.q.toLowerCase()))return false;
+    }
+    return true;
+  });
+  const mid=c=>((+c.adrLo||0)+(+c.adrHi||0))/2;
+  if(state.sort==="sim")list.sort((a,b)=>b.sim-a.sim||mid(b)-mid(a));
+  if(state.sort==="adrHigh")list.sort((a,b)=>mid(b)-mid(a));
+  if(state.sort==="adrLow")list.sort((a,b)=>mid(a)-mid(b));
+  if(state.sort==="name")list.sort((a,b)=>a.name.localeCompare(b.name));
+  return list;
+}
+function dots(n){let s="";for(let i=1;i<=5;i++)s+='<i class="'+(i<=n?"":"off")+'"></i>';return '<div class="dots" title="Similarity '+n+'/5">'+s+"</div>";}
+function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
+
+function render(){
+  const list=filtered();
+  const g=$("grid"); g.innerHTML="";
+  $("empty").style.display=list.length?"none":"block";
+  list.forEach(c=>{
+    const el=document.createElement("article");
+    el.className="card"+(c.deck?" deck":"");
+    el.innerHTML=
+      (c.deck?'<span class="badge">DECK COMP</span>':"")+
+      "<h3>"+esc(c.name)+"</h3>"+
+      '<div class="loc">'+esc(c.loc)+" · "+esc(c.region)+"</div>"+
+      '<div class="facts">'+
+        '<div><span class="k">Keys</span><span class="v">'+esc(c.keys||"—")+"</span></div>"+
+        '<div><span class="k">ADR</span><span class="v adr">'+adrText(c)+"</span></div>"+
+        '<div><span class="k">Units</span><span class="v">'+esc(c.units||"—")+"</span></div>"+
+        '<div><span class="k">Similarity</span>'+dots(c.sim)+"</div>"+
+      "</div>"+
+      '<div class="tags">'+c.amen.map(a=>'<span class="tag">'+esc(a)+"</span>").join("")+"</div>"+
+      (c.notes?'<div class="notes">'+esc(c.notes)+"</div>":"")+
+      '<div class="actions"><button class="btn btn-quiet" data-edit="'+c.id+'">Edit</button></div>';
+    g.appendChild(el);
+  });
+  // stats: count + penetration of active amenity filters or headline amenities
+  const n=list.length;
+  const pen=a=>list.filter(c=>c.amen.includes(a)).length;
+  const focus=state.amen.size?[...state.amen]:["Sauna","Spa Treatments","Weddings & Events","Per-Unit Hot Tub"];
+  $("stats").innerHTML="<b>"+n+"</b> of "+comps.length+" properties shown · "+
+    focus.map(a=>esc(a)+": <b>"+pen(a)+"</b>").join(" · ");
+  document.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>openModal(b.getAttribute("data-edit"))));
+}
+
+/* ---------- chips & controls ---------- */
+AMENITIES.forEach(a=>{
+  const b=document.createElement("button");
+  b.className="chip"; b.textContent=a;
+  b.addEventListener("click",()=>{
+    if(state.amen.has(a)){state.amen.delete(a);b.classList.remove("on");}
+    else{state.amen.add(a);b.classList.add("on");}
+    render();
+  });
+  $("amenChips").appendChild(b);
+});
+$("q").addEventListener("input",e=>{state.q=e.target.value;render();});
+$("regionSel").addEventListener("change",e=>{state.region=e.target.value;render();});
+$("simSel").addEventListener("change",e=>{state.sim=e.target.value;render();});
+$("sortSel").addEventListener("change",e=>{state.sort=e.target.value;render();});
+$("deckOnly").addEventListener("click",()=>{
+  state.deckOnly=!state.deckOnly;
+  $("deckOnly").classList.toggle("on",state.deckOnly);
+  $("deckOnly").style.background=state.deckOnly?"var(--terra)":"";
+  $("deckOnly").style.color=state.deckOnly?"#fff":"";
+  render();
+});
+
+/* ---------- modal ---------- */
+const amenPick=$("amenPick");
+AMENITIES.forEach(a=>{
+  const l=document.createElement("label");
+  l.innerHTML='<input type="checkbox" value="'+esc(a)+'"> '+esc(a);
+  amenPick.appendChild(l);
+});
+const simPick=$("simPick");
+for(let i=1;i<=5;i++){
+  const b=document.createElement("button");
+  b.type="button"; b.textContent=i;
+  b.addEventListener("click",()=>{simVal=i;paintSim();});
+  simPick.appendChild(b);
+}
+function paintSim(){[...simPick.children].forEach((b,i)=>b.classList.toggle("on",i<simVal));}
+
+function openModal(id){
+  editingId=id||null;
+  $("modalTitle").textContent=id?"Edit property":"Add property";
+  $("deleteBtn").style.display=id?"":"none";
+  const c=id?comps.find(x=>x.id===id):{name:"",loc:"",region:"Midwest",keys:"",units:"",adrLo:"",adrHi:"",sim:3,deck:false,amen:[],notes:""};
+  $("f_name").value=c.name; $("f_loc").value=c.loc; $("f_region").value=c.region;
+  $("f_keys").value=c.keys; $("f_units").value=c.units;
+  $("f_adrLo").value=c.adrLo||""; $("f_adrHi").value=c.adrHi||"";
+  $("f_deck").value=c.deck?"yes":"no"; $("f_notes").value=c.notes||"";
+  simVal=c.sim||3; paintSim();
+  amenPick.querySelectorAll("input").forEach(i=>i.checked=c.amen.includes(i.value));
+  $("overlay").classList.add("open");
+  $("f_name").focus();
+}
+function closeModal(){$("overlay").classList.remove("open");editingId=null;}
+$("addBtn").addEventListener("click",()=>openModal(null));
+$("cancelBtn").addEventListener("click",closeModal);
+$("overlay").addEventListener("click",e=>{if(e.target===$("overlay"))closeModal();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
+
+$("saveBtn").addEventListener("click",async()=>{
+  const name=$("f_name").value.trim();
+  if(!name){$("f_name").focus();return;}
+  const rec={
+    id:editingId||("c"+Date.now()),
+    name, loc:$("f_loc").value.trim(), region:$("f_region").value,
+    keys:$("f_keys").value.trim(), units:$("f_units").value.trim(),
+    adrLo:+$("f_adrLo").value||0, adrHi:+$("f_adrHi").value||0,
+    sim:simVal, deck:$("f_deck").value==="yes",
+    amen:[...amenPick.querySelectorAll("input:checked")].map(i=>i.value),
+    notes:$("f_notes").value.trim()
+  };
+  if(editingId){const i=comps.findIndex(x=>x.id===editingId);comps[i]=rec;}
+  else comps.unshift(rec);
+  await persist(); closeModal(); render();
+});
+$("deleteBtn").addEventListener("click",async()=>{
+  if(!editingId)return;
+  const c=comps.find(x=>x.id===editingId);
+  if(!confirm('Delete "'+c.name+'" from the tracker?'))return;
+  comps=comps.filter(x=>x.id!==editingId);
+  await persist(); closeModal(); render();
+});
+$("resetBtn").addEventListener("click",async()=>{
+  if(!confirm("Replace the current set with the original 20 properties? Your edits and additions will be lost."))return;
+  comps=JSON.parse(JSON.stringify(SEED));
+  await persist(); render();
+});
+
+/* ---------- boot ---------- */
+(async function(){ await load(); render(); })();
+})();
+</script>
+</body>
+</html>
